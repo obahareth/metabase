@@ -119,11 +119,35 @@
   "For a given resultset, return the index of the column that should be used for the goal comparison. This can come
   from the visualization settings if the column is specified, or from our default column logic"
   [card result]
-  (if-let [user-specified-rowfn (y-axis-rowfn card result)]
-    user-specified-rowfn
-    (when-let [default-col-index (default-goal-column-index card result)]
+  (let [user-specified-rowfn (y-axis-rowfn card result)
+        default-col-index (default-goal-column-index card result)
+        progress-value-col (when (= :progress (:display card))
+                             (get-in card [:visualization_settings :progress.value]))
+        progress-col-index (when progress-value-col
+                             (column-name->index progress-value-col result))
+        first-numeric-col-index (when (and (= :progress (:display card))
+                                           (not progress-col-index))
+                                  (first (keep-indexed (fn [idx col]
+                                                         (when (isa? (:base_type col) :type/Number)
+                                                           idx))
+                                                       (:cols result))))]
+    (cond
+      user-specified-rowfn
+      user-specified-rowfn
+
+      progress-col-index
       (fn [row]
-        (nth row default-col-index)))))
+        (nth row progress-col-index))
+
+      first-numeric-col-index
+      (fn [row]
+        (nth row first-numeric-col-index))
+
+      default-col-index
+      (fn [row]
+        (nth row default-col-index))
+
+      :else nil)))
 
 (defn- extract-goal-value-from-column
   "Extracts goal value from a column reference, similar to frontend getGoalValue"
@@ -131,7 +155,7 @@
   (when (string? goal-setting)
     (let [column-index (->> columns
                             (map-indexed vector)
-                            (filter #(= goal-setting (get-in (second %) [:name])))
+                            (filter #(= goal-setting (:name (second %))))
                             (first)
                             (first))]
       (when (and column-index rows (seq rows))
@@ -161,18 +185,12 @@
         goal-setting
 
         (string? goal-setting)
-        ;; Check if column reference is valid (matches frontend isValid logic)
         (if-let [column (->> columns (filter #(= goal-setting (:name %))) first)]
-          ;; Column exists, check if it's numeric
           (if (isa? (:base_type column) :type/Number)
-            ;; Valid numeric column, extract value
             (extract-goal-value-from-column goal-setting columns rows)
-            ;; Non-numeric column, use default
             0)
-          ;; Column doesn't exist, use default
           0)
 
-        ;; Invalid goal setting (nil, undefined, etc.), use default
         :else 0))
 
     nil))

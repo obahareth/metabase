@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { t } from "ttag";
 
-import { ActionIcon, Icon, Menu, NumberInput } from "metabase/ui";
+import { ActionIcon, Icon, Menu, NumberInput, TextInput } from "metabase/ui";
 import { isNumeric } from "metabase-lib/v1/types/utils/isa";
 import type { DatasetColumn } from "metabase-types/api";
 
@@ -29,21 +29,21 @@ export const ChartSettingGoalInput = ({
     if (!columns?.length) {
       return [];
     }
-    return columns
-      .filter(isNumeric)
-      .filter((col) => col.name !== valueField)
-      .map((col) => ({
-        value: col.name,
-        label: col.display_name || col.name,
-      }));
-  }, [columns, valueField]);
+    return columns.filter(isNumeric).map((col) => ({
+      value: col.name,
+      label: col.display_name || col.name,
+    }));
+  }, [columns]);
 
   const isColumnReference =
     typeof value === "string" &&
     numericColumns.some((col) => col.value === value);
 
   const numericValue = typeof value === "number" ? value : 0;
-  const hasNumericColumns = numericColumns.length > 0;
+  const availableColumns = numericColumns.filter(
+    (col) => col.value !== valueField,
+  );
+  const hasNumericColumns = availableColumns.length > 0;
 
   const selectedColumn = isColumnReference
     ? numericColumns.find((col) => col.value === value)
@@ -90,7 +90,7 @@ export const ChartSettingGoalInput = ({
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown miw={320}>
-            {numericColumns.map((column) => (
+            {availableColumns.map((column) => (
               <Menu.Item
                 key={column.value}
                 onClick={() => handleColumnSelect(column.value)}
@@ -104,15 +104,33 @@ export const ChartSettingGoalInput = ({
     </>
   );
 
+  if (isColumnReference) {
+    return (
+      <TextInput
+        id={id}
+        value={selectedColumn?.label || value}
+        readOnly
+        placeholder={selectedColumn?.label || value}
+        rightSection={rightSection}
+        rightSectionPointerEvents="all"
+        rightSectionProps={{
+          style: { width: rightSectionWidth },
+        }}
+        styles={{
+          input: {
+            paddingRight: rightSectionWidth,
+          },
+        }}
+      />
+    );
+  }
+
   return (
     <NumberInput
       id={id}
-      value={isColumnReference ? selectedColumn?.label || value : numericValue}
-      onChange={(val) => !isColumnReference && onChange(val ?? 0)}
-      placeholder={
-        isColumnReference ? selectedColumn?.label : t`Enter goal value`
-      }
-      readOnly={isColumnReference}
+      value={numericValue}
+      onChange={(val) => onChange(val ?? 0)}
+      placeholder={t`Enter goal value`}
       rightSection={rightSection}
       rightSectionPointerEvents="all"
       rightSectionProps={{
