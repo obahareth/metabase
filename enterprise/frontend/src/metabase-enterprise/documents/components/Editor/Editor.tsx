@@ -34,6 +34,7 @@ import { MetabotMentionExtension } from "./extensions/MetabotMention/MetabotMent
 import { MetabotMentionSuggestion } from "./extensions/MetabotMention/MetabotSuggestion";
 import { ResizeNode } from "./extensions/ResizeNode/ResizeNode";
 import { SmartLink } from "./extensions/SmartLink/SmartLinkNode";
+import { SupportingText } from "./extensions/SupportingText/SupportingText";
 import { createSuggestionRenderer } from "./extensions/suggestionRenderer";
 import {
   useCardEmbedDnD,
@@ -126,6 +127,7 @@ export const Editor: React.FC<EditorProps> = ({
       }),
       CardEmbed,
       FlexContainer,
+      SupportingText,
       MentionExtension.configure({
         suggestion: {
           allow: ({ state }) => !isMetabotBlock(state),

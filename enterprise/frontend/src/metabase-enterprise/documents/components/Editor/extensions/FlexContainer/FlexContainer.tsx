@@ -10,7 +10,7 @@ import cx from "classnames";
 import type React from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import { Box } from "metabase/ui";
+import { Box, Button, Icon } from "metabase/ui";
 
 import styles from "./FlexContainer.module.css";
 
@@ -26,7 +26,7 @@ export const FlexContainer: Node<{
 }> = Node.create({
   name: "flexContainer",
   group: "block",
-  content: "cardEmbed{1,3}", // Contains 1-3 CardEmbed nodes only
+  content: "(supportingText | cardEmbed){1,3}", // Contains 1-3 CardEmbed nodes only
   defining: true,
   draggable: false,
   selectable: false,
@@ -82,6 +82,8 @@ const FlexContainerComponent: React.FC<NodeViewProps> = ({
   node,
   updateAttributes,
   selected,
+  editor,
+  getPos,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
@@ -91,7 +93,7 @@ const FlexContainerComponent: React.FC<NodeViewProps> = ({
 
   // Get column count and current widths
   const columnCount = node.content.childCount;
-  const currentWidths = node.attrs.columnWidths;
+  const currentWidths: number[] = node.attrs.columnWidths;
 
   // Calculate default equal widths if not set
   const columnWidths = useMemo(() => {
@@ -248,6 +250,31 @@ const FlexContainerComponent: React.FC<NodeViewProps> = ({
 
         {renderResizeHandles(isDragging)}
       </Box>
+
+      {/* TODO: Replace 3 with constant */}
+      {node.content.childCount < 3 && (
+        <Box pos="absolute" right="100%" top={0} className={styles.showOnHover}>
+          <Button
+            variant="subtle"
+            onClick={() => {
+              const pos = getPos();
+              if (pos == null) {
+                return;
+              }
+              updateAttributes({
+                columnWidths: [(1 / 3) * 100, ...columnWidths],
+              });
+              editor.commands.focus(pos + 1); // .chain() sometimes causes the content to not insert correctly
+              editor.commands.insertContentAt(pos + 1, {
+                type: "supportingText",
+                content: [{ type: "paragraph" }],
+              });
+            }}
+          >
+            <Icon name="add" />
+          </Button>
+        </Box>
+      )}
     </NodeViewWrapper>
   );
 };
