@@ -13,6 +13,8 @@ import { t } from "ttag";
 
 import { ActionIcon, Box, Icon, Tooltip } from "metabase/ui";
 
+import { SupportingText } from "../SupportingText/SupportingText";
+
 import styles from "./FlexContainer.module.css";
 
 const COLUMN_MIN_WIDTH = 200;
@@ -229,6 +231,17 @@ const FlexContainerComponent: React.FC<NodeViewProps> = ({
     return handles;
   };
 
+  /* TODO: Replace `3`s with constant */
+  const shouldAllowAddingSupportingText = () => {
+    if (node.content.childCount >= 3) {
+      return false;
+    }
+    const hasSupportingText = node.content.content.some(
+      (n) => n.type.name === SupportingText.name,
+    );
+    return !hasSupportingText;
+  };
+
   return (
     <NodeViewWrapper
       className={cx(styles.flexContainer, {
@@ -237,9 +250,8 @@ const FlexContainerComponent: React.FC<NodeViewProps> = ({
       })}
       data-type="flexContainer"
     >
-      {/* TODO: Replace `3`s with constant */}
-      {node.content.childCount < 3 && (
-        <Box pos="absolute" right="100%" top="1rem" mr="xs">
+      {shouldAllowAddingSupportingText() && (
+        <Box pos="absolute" right="100%" top="1rem" pr="xs" pt="xs">
           <Tooltip label={t`Add supporting text`}>
             <ActionIcon
               className={styles.showOnHover}
@@ -253,6 +265,7 @@ const FlexContainerComponent: React.FC<NodeViewProps> = ({
                 });
                 editor.commands.focus(pos + 1); // .chain() sometimes causes the content to not insert correctly
                 editor.commands.insertContentAt(pos + 1, {
+                  // TODO: un-hard-code "supportingText" everywhere
                   type: "supportingText",
                   content: [{ type: "paragraph" }],
                 });

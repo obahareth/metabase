@@ -15,6 +15,7 @@ export const SupportingText = Node.create<{
   content: "block+",
   draggable: false,
   selectable: true,
+  isolating: true,
 
   addOptions() {
     return {

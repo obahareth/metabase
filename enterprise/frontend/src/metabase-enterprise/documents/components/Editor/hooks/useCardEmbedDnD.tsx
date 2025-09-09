@@ -1,31 +1,34 @@
 import type { DragEndEvent } from "@dnd-kit/core";
+import type { Transaction } from "@tiptap/pm/state";
 import type { Editor as TiptapEditor } from "@tiptap/react";
 import { useCallback } from "react";
 
-const cleanupEmptyResizeNodes = (transaction: any) => {
+const cleanupEmptyResizeNodes = (transaction: Transaction) => {
   const emptyResizeNodePositions: { pos: number; node: any }[] = [];
 
   // Find all ResizeNode instances in the document
-  transaction.doc.descendants((node: any, pos: number) => {
+  transaction.doc.descendants((node, pos) => {
     if (node.type.name === "resizeNode") {
       // Check if the ResizeNode is empty or contains only whitespace
       const hasContent =
-        node.content.content?.some((child: any) => {
-          if (child.type.name === "paragraph") {
-            // Check if paragraph has actual text content (not just whitespace)
-            return child.textContent?.trim().length > 0;
+        node.content.content?.some((child) => {
+          // TODO: This is hacky, organize it better
+          if (child.type.name === "flexContainer") {
+            return child.content.content.some(
+              (n) => n.type.name === "cardEmbed",
+            );
           }
-          // Non-paragraph content (like CardEmbed) is considered meaningful
-          return (
-            child.type.name !== "paragraph" ||
-            child.textContent?.trim().length > 0
-          );
+          return child.textContent?.trim().length > 0;
         }) || false;
 
       if (!hasContent) {
         emptyResizeNodePositions.push({ pos, node });
       }
     }
+
+    // Optimization to prevent .descendants() from recursively diving into nodes we know aren't resizeNodes
+    // (assumes resizeNodes will never be nested)
+    return false;
   });
 
   // Remove empty ResizeNodes in reverse order to maintain positions
