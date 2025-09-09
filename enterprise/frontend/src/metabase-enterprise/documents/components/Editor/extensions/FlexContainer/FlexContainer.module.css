@@ -78,9 +78,11 @@
 }
 
 .showOnHover {
-  display: none;
+  opacity: 0;
+  transition: opacity 150ms;
 }
 
-.flexContainer:hover .showOnHover {
-  display: block;
+.flexContainer:hover .showOnHover,
+.showOnHover:focus {
+  opacity: 1;
 }

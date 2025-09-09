@@ -152,6 +152,8 @@ import field_component from "./field.svg?component";
 import field_source from "./field.svg?source";
 import fields_component from "./fields.svg?component";
 import fields_source from "./fields.svg?source";
+import file_component from "./file.svg?component";
+import file_source from "./file.svg?source";
 import filter_component from "./filter.svg?component";
 import filter_source from "./filter.svg?source";
 import filter_plus_component from "./filter_plus.svg?component";
@@ -760,6 +762,10 @@ export const Icons: Record<IconName, { component: React.VFC; source: string }> =
     fields: {
       component: fields_component,
       source: fields_source,
+    },
+    file: {
+      component: file_component,
+      source: file_source,
     },
     filter: {
       component: filter_component,
@@ -1488,6 +1494,7 @@ export type IconName =
   | "eye_outline"
   | "field"
   | "fields"
+  | "file"
   | "filter"
   | "filter_plus"
   | "bug"

@@ -9,8 +9,9 @@ import {
 import cx from "classnames";
 import type React from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { t } from "ttag";
 
-import { Box, Button, Icon } from "metabase/ui";
+import { ActionIcon, Box, Icon, Tooltip } from "metabase/ui";
 
 import styles from "./FlexContainer.module.css";
 
@@ -236,6 +237,32 @@ const FlexContainerComponent: React.FC<NodeViewProps> = ({
       })}
       data-type="flexContainer"
     >
+      {/* TODO: Replace `3`s with constant */}
+      {node.content.childCount < 3 && (
+        <Box pos="absolute" right="100%" top="1rem" mr="xs">
+          <Tooltip label={t`Add supporting text`}>
+            <ActionIcon
+              className={styles.showOnHover}
+              onClick={() => {
+                const pos = getPos();
+                if (pos == null) {
+                  return;
+                }
+                updateAttributes({
+                  columnWidths: [(1 / 3) * 100, ...columnWidths],
+                });
+                editor.commands.focus(pos + 1); // .chain() sometimes causes the content to not insert correctly
+                editor.commands.insertContentAt(pos + 1, {
+                  type: "supportingText",
+                  content: [{ type: "paragraph" }],
+                });
+              }}
+            >
+              <Icon name="file" />
+            </ActionIcon>
+          </Tooltip>
+        </Box>
+      )}
       <Box h="100%" ref={containerRef}>
         <NodeViewContent
           className={styles.flexContent}
@@ -250,31 +277,6 @@ const FlexContainerComponent: React.FC<NodeViewProps> = ({
 
         {renderResizeHandles(isDragging)}
       </Box>
-
-      {/* TODO: Replace 3 with constant */}
-      {node.content.childCount < 3 && (
-        <Box pos="absolute" right="100%" top={0} className={styles.showOnHover}>
-          <Button
-            variant="subtle"
-            onClick={() => {
-              const pos = getPos();
-              if (pos == null) {
-                return;
-              }
-              updateAttributes({
-                columnWidths: [(1 / 3) * 100, ...columnWidths],
-              });
-              editor.commands.focus(pos + 1); // .chain() sometimes causes the content to not insert correctly
-              editor.commands.insertContentAt(pos + 1, {
-                type: "supportingText",
-                content: [{ type: "paragraph" }],
-              });
-            }}
-          >
-            <Icon name="add" />
-          </Button>
-        </Box>
-      )}
     </NodeViewWrapper>
   );
 };
