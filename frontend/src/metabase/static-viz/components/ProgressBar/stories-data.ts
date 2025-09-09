@@ -13,21 +13,22 @@ export const ZERO = {
         rows: [[0]],
       },
       card: {
+        display: "progress",
         visualization_settings: {
           "progress.goal": 100000,
           "progress.color": "#84BB4C",
+          column_settings: {
+            '["name","value"]': {
+              number_style: "currency",
+              currency: "USD",
+              currency_style: "symbol",
+              decimals: 0,
+            },
+          },
         },
       },
     },
   ],
-  settings: {
-    column: () => ({
-      number_style: "currency",
-      currency: "USD",
-      currency_style: "symbol",
-      decimals: 0,
-    }),
-  },
   renderingContext: {
     getColor: (color: string) => (color === "accent1" ? "#509EE3" : color),
   },
@@ -48,21 +49,22 @@ export const BELOW_GOAL = {
         rows: [[30000]],
       },
       card: {
+        display: "progress",
         visualization_settings: {
           "progress.goal": 100000,
           "progress.color": "#84BB4C",
+          column_settings: {
+            '["name","value"]': {
+              number_style: "currency",
+              currency: "USD",
+              currency_style: "symbol",
+              decimals: 0,
+            },
+          },
         },
       },
     },
   ],
-  settings: {
-    column: () => ({
-      number_style: "currency",
-      currency: "USD",
-      currency_style: "symbol",
-      decimals: 0,
-    }),
-  },
   renderingContext: {
     getColor: (color: string) => (color === "accent1" ? "#509EE3" : color),
   },
@@ -83,21 +85,22 @@ export const REACHED_GOAL = {
         rows: [[100000]],
       },
       card: {
+        display: "progress",
         visualization_settings: {
           "progress.goal": 100000,
           "progress.color": "#84BB4C",
+          column_settings: {
+            '["name","value"]': {
+              number_style: "currency",
+              currency: "USD",
+              currency_style: "symbol",
+              decimals: 0,
+            },
+          },
         },
       },
     },
   ],
-  settings: {
-    column: () => ({
-      number_style: "currency",
-      currency: "USD",
-      currency_style: "symbol",
-      decimals: 0,
-    }),
-  },
   renderingContext: {
     getColor: (color: string) => (color === "accent1" ? "#509EE3" : color),
   },
@@ -118,21 +121,22 @@ export const EXCEEDS_GOAL = {
         rows: [[135000]],
       },
       card: {
+        display: "progress",
         visualization_settings: {
           "progress.goal": 100000,
           "progress.color": "#84BB4C",
+          column_settings: {
+            '["name","value"]': {
+              number_style: "currency",
+              currency: "USD",
+              currency_style: "symbol",
+              decimals: 0,
+            },
+          },
         },
       },
     },
   ],
-  settings: {
-    column: () => ({
-      number_style: "currency",
-      currency: "USD",
-      currency_style: "symbol",
-      decimals: 0,
-    }),
-  },
   renderingContext: {
     getColor: (color: string) => (color === "accent1" ? "#509EE3" : color),
   },

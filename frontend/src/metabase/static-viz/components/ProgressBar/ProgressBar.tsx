@@ -50,12 +50,11 @@ export const ProgressBar = ({
 }: StaticChartProps) => {
   const {
     data: { cols, rows },
-    card: { visualization_settings },
   } = rawSeries[0];
 
   const { data, metrics, colors, column } = useMemo(() => {
-    const valueField = visualization_settings?.["progress.value"];
-    const goalSetting = visualization_settings?.["progress.goal"] ?? 0;
+    const valueField = settings["progress.value"];
+    const goalSetting = settings["progress.goal"] ?? 0;
 
     const column = findProgressColumn(cols, valueField);
     const columnIndex = column
@@ -68,8 +67,7 @@ export const ProgressBar = ({
     const metrics = calculateProgressMetrics(value, goal);
 
     const mainColor =
-      visualization_settings?.["progress.color"] ||
-      renderingContext.getColor("accent1");
+      settings["progress.color"] || renderingContext.getColor("accent1");
     const colors = getProgressColors(mainColor, value, goal);
 
     return {
@@ -78,9 +76,9 @@ export const ProgressBar = ({
       colors,
       column: column || cols[0],
     };
-  }, [cols, rows, visualization_settings, renderingContext]);
+  }, [cols, rows, settings, renderingContext]);
 
-  const format = settings.column?.(column);
+  const columnSettings = settings.column?.(column) ?? {};
   const barWidth = layout.width - layout.margin.left - layout.margin.right;
 
   const xMin = layout.margin.left;
@@ -99,7 +97,7 @@ export const ProgressBar = ({
 
   const barMessage = getProgressMessage(metrics);
   const valueText = metrics.hasValidValue
-    ? String(formatValue(data.value, format) ?? "—")
+    ? String(formatValue(data.value, columnSettings) ?? "—")
     : "—";
 
   const valueTextShift = calculatePointerLabelShift(
@@ -183,11 +181,11 @@ export const ProgressBar = ({
           alignmentBaseline="baseline"
           x={layout.margin.left}
         >
-          {String(formatValue(0, format) ?? "0")}
+          {String(formatValue(0, columnSettings) ?? "0")}
         </Text>
         <Text fontSize={layout.fontSize} textAnchor="end" x={xMax}>
           {metrics.hasValidGoal
-            ? t`Goal ${String(formatValue(data.goal, format) ?? data.goal)}`
+            ? t`Goal ${String(formatValue(data.goal, columnSettings) ?? data.goal)}`
             : t`Goal: Not set`}
         </Text>
       </Group>
