@@ -11,7 +11,12 @@ import { FormErrorMessage } from "metabase/forms/components/FormErrorMessage";
 import { FormSubmitButton } from "metabase/forms/components/FormSubmitButton";
 import { useSelector } from "metabase/lib/redux";
 import { Box, Button, Flex, Text } from "metabase/ui";
-import type { DatabaseData, Engine, EngineKey } from "metabase-types/api";
+import type {
+  DatabaseData,
+  Engine,
+  EngineField,
+  EngineKey,
+} from "metabase-types/api";
 
 import { getEngines } from "../../selectors";
 import type { FormLocation } from "../../types";
@@ -26,6 +31,8 @@ import DatabaseDetailField from "../DatabaseDetailField";
 import { DatabaseEngineField } from "../DatabaseEngineField";
 import DatabaseEngineWarning from "../DatabaseEngineWarning";
 import { DatabaseNameField } from "../DatabaseNameField";
+
+import S from "./DatabaseForm.module.css";
 
 export type EngineFieldState = "default" | "hidden" | "disabled";
 
@@ -152,6 +159,21 @@ interface DatabaseFormBodyProps {
   location: FormLocation;
 }
 
+function groupFields(
+  fields: EngineField[],
+  fieldNames: string[],
+): Array<EngineField | EngineField[]> {
+  const indexes = fieldNames.map((name) =>
+    fields.findIndex((field) => field.name === name),
+  );
+  const combinedField = indexes.map((index) => fields[index]);
+  const filteredFields: Array<EngineField | EngineField[]> = fields.filter(
+    (_field, index) => !indexes.includes(index),
+  );
+  const result = [...filteredFields].toSpliced(indexes[0], 0, combinedField);
+  return result;
+}
+
 const DatabaseFormBody = ({
   engine,
   engineKey,
@@ -174,7 +196,10 @@ const DatabaseFormBody = ({
   }, [dirty, setIsDirty]);
 
   const fields = useMemo(() => {
-    return engine ? getVisibleFields(engine, values, isAdvanced) : [];
+    const tempFields = engine
+      ? getVisibleFields(engine, values, isAdvanced)
+      : [];
+    return groupFields(tempFields, ["host", "port"]);
   }, [engine, values, isAdvanced]);
 
   const px = match(location)
@@ -220,15 +245,32 @@ const DatabaseFormBody = ({
             autoFocus={autofocusFieldName === "name"}
           />
         )}
-        {fields.map((field) => (
-          <DatabaseDetailField
-            key={field.name}
-            field={field}
-            autoFocus={autofocusFieldName === field.name}
-            data-kek={field.name}
-            engineKey={engineKey}
-          />
-        ))}
+        {fields.map((field) => {
+          if (Array.isArray(field)) {
+            return (
+              <Box key="sub-group" className={S.SubGroup}>
+                {field.map((f) => (
+                  <DatabaseDetailField
+                    key={f.name}
+                    field={f}
+                    autoFocus={autofocusFieldName === f.name}
+                    engineKey={engineKey}
+                  />
+                ))}
+              </Box>
+            );
+          }
+
+          return (
+            <DatabaseDetailField
+              key={field.name}
+              field={field}
+              autoFocus={autofocusFieldName === field.name}
+              data-kek={field.name}
+              engineKey={engineKey}
+            />
+          );
+        })}
       </Box>
       <DatabaseFormFooter
         isDirty={dirty}
