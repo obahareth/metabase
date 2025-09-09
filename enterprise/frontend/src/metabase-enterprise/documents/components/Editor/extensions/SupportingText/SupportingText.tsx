@@ -5,6 +5,8 @@ import {
   ReactNodeViewRenderer,
 } from "@tiptap/react";
 
+import S from "./SupportingText.module.css";
+
 export const SupportingText = Node.create<{
   HTMLAttributes: Record<string, any>;
 }>({
@@ -45,14 +47,8 @@ export const SupportingText = Node.create<{
 
 const SupportingTextComponent = () => {
   return (
-    <NodeViewWrapper style={{ height: "100%", margin: "1rem 0" }}>
-      <NodeViewContent
-        style={{
-          height: "100%",
-          backgroundColor: "var(--mb-color-bg-light)",
-          padding: "1rem",
-        }}
-      />
+    <NodeViewWrapper className={S.wrapper}>
+      <NodeViewContent className={S.content} />
     </NodeViewWrapper>
   );
 };

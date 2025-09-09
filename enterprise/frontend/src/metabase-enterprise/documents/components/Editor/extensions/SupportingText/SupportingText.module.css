@@ -1,0 +1,11 @@
+.wrapper {
+  height: 100%;
+  margin: 1rem 0;
+}
+
+.content {
+  height: 100%;
+  background-color: var(--mb-color-bg-light);
+  border-radius: var(--mantine-radius-sm);
+  padding: 1rem;
+}
