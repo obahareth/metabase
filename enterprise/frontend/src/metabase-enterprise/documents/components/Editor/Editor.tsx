@@ -48,7 +48,6 @@ const BUBBLE_MENU_DISALLOWED_NODES: string[] = [
   MetabotNode.name,
   SmartLink.name,
   Image.name,
-  FlexContainer.name,
   "codeBlock",
 ];
 
